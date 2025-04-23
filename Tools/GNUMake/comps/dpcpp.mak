@@ -1,10 +1,10 @@
 #
 # Generic setup for using gcc
 #
-CXX = icpx
-CC  = icx
-FC  = ifx
-F90 = ifx
+CXX = mpicxx# cpp -P -traditional
+CC  = mpicc
+FC  = gfortran
+F90 = gfortan
 
 amrex_oneapi_version = $(shell $(CXX) --version | head -1)
 $(info oneAPI version: $(amrex_oneapi_version))
@@ -13,6 +13,11 @@ CXXFLAGS =
 CFLAGS   =
 FFLAGS   =
 F90FLAGS =
+
+
+ifeq ($(USE_SYCL_NVIDIA),TRUE)
+  CXXFLAGS += -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend --cuda-gpu-arch=sm_80
+endif
 
 ifeq ($(USE_ONEDPL),TRUE)
 # TBB and PSTL are broken in oneAPI 2021.3.0
@@ -132,6 +137,9 @@ ifneq ($(BL_NO_FORT),TRUE)
 endif
 
 LDFLAGS += -qmkl=sequential -fsycl-device-lib=libc,libm-fp32,libm-fp64
+ifeq ($(USE_SYCL_NVIDIA),TRUE)
+  LDFLAGS +=$(PE_MPICH_GTL_DIR_nvidia80) $(PE_MPICH_GTL_LIBS_nvidia80)
+endif
 
 ifdef SYCL_PARALLEL_LINK_JOBS
 LDFLAGS += -fsycl-max-parallel-link-jobs=$(SYCL_PARALLEL_LINK_JOBS)

@@ -25,10 +25,10 @@ ifeq ($(which_computer),$(filter $(which_computer),polaris))
 
   ifeq ($(USE_MPI),TRUE)
     ifneq ($(USE_CUDA),TRUE)
-      CC  = cc
-      CXX = CC
-      FC  = ftn
-      F90 = ftn
+      CC  = clang
+      CXX = clang++
+      FC  = gfortran
+      F90 = gfortran
       LIBRARIES += -lmpichf90
     endif
 
