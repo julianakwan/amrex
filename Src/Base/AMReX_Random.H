@@ -25,8 +25,9 @@ namespace amrex
     Real Random (RandomEngine const& random_engine)
     {
 #if defined (__SYCL_DEVICE_ONLY__)
-        mkl::rng::device::uniform<Real> distr;
-        return mkl::rng::device::generate(distr, *random_engine.engine);
+      mkl::rng::device::uniform<Real> distr;
+      return mkl::rng::device::generate(distr, *random_engine.engine);
+      
 #else
 #ifdef BL_USE_FLOAT
         AMREX_IF_ON_DEVICE((
@@ -63,8 +64,9 @@ namespace amrex
     Real RandomNormal (Real mean, Real stddev, RandomEngine const& random_engine)
     {
 #if defined (__SYCL_DEVICE_ONLY__)
-        mkl::rng::device::gaussian<Real> distr(mean, stddev);
-        return mkl::rng::device::generate(distr, *random_engine.engine);
+      mkl::rng::device::gaussian<Real> distr(mean, stddev);
+      return mkl::rng::device::generate(distr, *random_engine.engine);
+	
 #else
 #ifdef BL_USE_FLOAT
         AMREX_IF_ON_DEVICE((
@@ -103,8 +105,9 @@ namespace amrex
     unsigned int RandomPoisson (Real lambda, RandomEngine const& random_engine)
     {
 #if defined (__SYCL_DEVICE_ONLY__)
-        mkl::rng::device::poisson<unsigned int> distr(lambda);
-        return mkl::rng::device::generate(distr, *random_engine.engine);
+       mkl::rng::device::poisson<unsigned int> distr(lambda);
+       return mkl::rng::device::generate(distr, *random_engine.engine);
+
 #else
         AMREX_IF_ON_DEVICE((
                 AMREX_HIP_OR_CUDA(
@@ -200,8 +203,9 @@ namespace amrex
     unsigned int Random_int (unsigned int n, RandomEngine const& random_engine)
     {
 #if defined(__SYCL_DEVICE_ONLY__)
-        mkl::rng::device::uniform<unsigned int> distr(0,n);
-        return mkl::rng::device::generate(distr, *random_engine.engine);
+      mkl::rng::device::uniform<unsigned int> distr(0,n);
+      return mkl::rng::device::generate(distr, *random_engine.engine);
+	
 #else
         AMREX_IF_ON_DEVICE((
                 unsigned int rand;

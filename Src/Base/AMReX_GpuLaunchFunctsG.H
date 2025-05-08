@@ -431,106 +431,106 @@ void ParallelFor (Gpu::KernelInfo const& info, BoxND<dim> const& box, T ncomp, L
 template <typename T, typename L, typename M=std::enable_if_t<std::is_integral<T>::value> >
 void ParallelForRNG (T n, L const& f) noexcept
 {
-    if (amrex::isEmpty(n)) { return; }
-    const auto ec = Gpu::ExecutionConfig(n);
-    const auto nthreads_per_block = ec.numThreads.x;
-    const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
-    auto& q = Gpu::Device::streamQueue();
-    auto& engdescr = *(getRandEngineDescriptor());
-    try {
-        q.submit([&] (sycl::handler& h) {
-            auto engine_acc = engdescr.get_access(h);
-            h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
-                                             sycl::range<1>(nthreads_per_block)),
-            [=] (sycl::nd_item<1> item)
-            [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
-            [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
-            {
-                auto const tid = item.get_global_id(0);
-                auto engine = engine_acc.load(tid);
-                RandomEngine rand_eng{&engine};
-                for (std::size_t i = tid, stride = item.get_global_range(0); i < std::size_t(n); i += stride) {
-                    f(T(i),rand_eng);
-                }
-                engine_acc.store(engine, tid);
-            });
-        });
-        q.wait_and_throw(); // because next launch might be on a different queue
-    } catch (sycl::exception const& ex) {
-        amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
-    }
+    // if (amrex::isEmpty(n)) { return; }
+    // const auto ec = Gpu::ExecutionConfig(n);
+    // const auto nthreads_per_block = ec.numThreads.x;
+    // const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
+    // auto& q = Gpu::Device::streamQueue();
+    // auto& engdescr = *(getRandEngineDescriptor());
+    // try {
+    //     q.submit([&] (sycl::handler& h) {
+    //         auto engine_acc = engdescr.get_access(h);
+    //         h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
+    //                                          sycl::range<1>(nthreads_per_block)),
+    //         [=] (sycl::nd_item<1> item)
+    //         [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
+    //         [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
+    //         {
+    //             auto const tid = item.get_global_id(0);
+    //             auto engine = engine_acc.load(tid);
+    //             RandomEngine rand_eng{&engine};
+    //             for (std::size_t i = tid, stride = item.get_global_range(0); i < std::size_t(n); i += stride) {
+    //                 f(T(i),rand_eng);
+    //             }
+    //             engine_acc.store(engine, tid);
+    //         });
+    //     });
+    //     q.wait_and_throw(); // because next launch might be on a different queue
+    // } catch (sycl::exception const& ex) {
+    //     amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
+    // }
 }
 
 template <typename L, int dim>
 void ParallelForRNG (BoxND<dim> const& box, L const& f) noexcept
 {
-    if (amrex::isEmpty(box)) { return; }
-    const BoxIndexerND<dim> indexer(box);
-    const auto ec = Gpu::ExecutionConfig(box.numPts());
-    const auto nthreads_per_block = ec.numThreads.x;
-    const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
-    auto& q = Gpu::Device::streamQueue();
-    auto& engdescr = *(getRandEngineDescriptor());
-    try {
-        q.submit([&] (sycl::handler& h) {
-            auto engine_acc = engdescr.get_access(h);
-            h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
-                                             sycl::range<1>(nthreads_per_block)),
-            [=] (sycl::nd_item<1> item)
-            [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
-            [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
-            {
-                auto const tid = item.get_global_id(0);
-                auto engine = engine_acc.load(tid);
-                RandomEngine rand_eng{&engine};
-                for (std::uint64_t icell = tid, stride = item.get_global_range(0);
-                     icell < indexer.numPts(); icell += stride) {
-                    auto iv = indexer.intVect(icell);
-                    detail::call_f_intvect_engine(f,iv,rand_eng);
-                }
-                engine_acc.store(engine, tid);
-            });
-        });
-        q.wait_and_throw(); // because next launch might be on a different queue
-    } catch (sycl::exception const& ex) {
-        amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
-    }
+    // if (amrex::isEmpty(box)) { return; }
+    // const BoxIndexerND<dim> indexer(box);
+    // const auto ec = Gpu::ExecutionConfig(box.numPts());
+    // const auto nthreads_per_block = ec.numThreads.x;
+    // const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
+    // auto& q = Gpu::Device::streamQueue();
+    // auto& engdescr = *(getRandEngineDescriptor());
+    // try {
+    //     q.submit([&] (sycl::handler& h) {
+    //         auto engine_acc = engdescr.get_access(h);
+    //         h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
+    //                                          sycl::range<1>(nthreads_per_block)),
+    //         [=] (sycl::nd_item<1> item)
+    //         [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
+    //         [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
+    //         {
+    //             auto const tid = item.get_global_id(0);
+    //             auto engine = engine_acc.load(tid);
+    //             RandomEngine rand_eng{&engine};
+    //             for (std::uint64_t icell = tid, stride = item.get_global_range(0);
+    //                  icell < indexer.numPts(); icell += stride) {
+    //                 auto iv = indexer.intVect(icell);
+    //                 detail::call_f_intvect_engine(f,iv,rand_eng);
+    //             }
+    //             engine_acc.store(engine, tid);
+    //         });
+    //     });
+    //     q.wait_and_throw(); // because next launch might be on a different queue
+    // } catch (sycl::exception const& ex) {
+    //     amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
+    // }
 }
 
 template <typename T, typename L, int dim, typename M=std::enable_if_t<std::is_integral<T>::value> >
 void ParallelForRNG (BoxND<dim> const& box, T ncomp, L const& f) noexcept
 {
-    if (amrex::isEmpty(box)) { return; }
-    const BoxIndexerND<dim> indexer(box);
-    const auto ec = Gpu::ExecutionConfig(box.numPts());
-    const auto nthreads_per_block = ec.numThreads.x;
-    const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
-    auto& q = Gpu::Device::streamQueue();
-    auto& engdescr = *(getRandEngineDescriptor());
-    try {
-        q.submit([&] (sycl::handler& h) {
-            auto engine_acc = engdescr.get_access(h);
-            h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
-                                             sycl::range<1>(nthreads_per_block)),
-            [=] (sycl::nd_item<1> item)
-            [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
-            [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
-            {
-                auto const tid = item.get_global_id(0);
-                auto engine = engine_acc.load(tid);
-                RandomEngine rand_eng{&engine};
-                for (std::uint64_t icell = tid, stride = item.get_global_range(0);
-                     icell < indexer.numPts(); icell += stride) {
-                    auto iv = indexer.intVect(icell);
-                    detail::call_f_intvect_ncomp_engine(f,iv,ncomp,rand_eng);
-                }
-                engine_acc.store(engine, tid);
-            });
-        });
-        q.wait_and_throw(); // because next launch might be on a different queue
-    } catch (sycl::exception const& ex) {
-        amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
-    }
+    // if (amrex::isEmpty(box)) { return; }
+    // const BoxIndexerND<dim> indexer(box);
+    // const auto ec = Gpu::ExecutionConfig(box.numPts());
+    // const auto nthreads_per_block = ec.numThreads.x;
+    // const auto nthreads_total = std::size_t(nthreads_per_block) * amrex::min(ec.numBlocks.x,Gpu::Device::maxBlocksPerLaunch());
+    // auto& q = Gpu::Device::streamQueue();
+    // auto& engdescr = *(getRandEngineDescriptor());
+    // try {
+    //     q.submit([&] (sycl::handler& h) {
+    //         auto engine_acc = engdescr.get_access(h);
+    //         h.parallel_for(sycl::nd_range<1>(sycl::range<1>(nthreads_total),
+    //                                          sycl::range<1>(nthreads_per_block)),
+    //         [=] (sycl::nd_item<1> item)
+    //         [[sycl::reqd_work_group_size(AMREX_GPU_MAX_THREADS)]]
+    //         [[sycl::reqd_sub_group_size(Gpu::Device::warp_size)]]
+    //         {
+    //             auto const tid = item.get_global_id(0);
+    //             auto engine = engine_acc.load(tid);
+    //             RandomEngine rand_eng{&engine};
+    //             for (std::uint64_t icell = tid, stride = item.get_global_range(0);
+    //                  icell < indexer.numPts(); icell += stride) {
+    //                 auto iv = indexer.intVect(icell);
+    //                 detail::call_f_intvect_ncomp_engine(f,iv,ncomp,rand_eng);
+    //             }
+    //             engine_acc.store(engine, tid);
+    //         });
+    //     });
+    //     q.wait_and_throw(); // because next launch might be on a different queue
+    // } catch (sycl::exception const& ex) {
+    //     amrex::Abort(std::string("ParallelFor: ")+ex.what()+"!!!!!");
+    // }
 }
 
 template <int MT, typename L1, typename L2, int dim>

@@ -1,10 +1,10 @@
 #
 # Generic setup for using gcc
 #
-CXX = mpicxx# cpp -P -traditional
-CC  = mpicc
+CXX = clang++# cpp -P -traditional
+CC  = clang
 FC  = gfortran
-F90 = gfortan
+F90 = gfortran
 
 amrex_oneapi_version = $(shell $(CXX) --version | head -1)
 $(info oneAPI version: $(amrex_oneapi_version))
@@ -136,9 +136,17 @@ ifneq ($(BL_NO_FORT),TRUE)
   endif
 endif
 
-LDFLAGS += -qmkl=sequential -fsycl-device-lib=libc,libm-fp32,libm-fp64
+
+LDFLAGS +=  -fsycl-device-lib=libc,libm-fp32,libm-fp64
+
+
 ifeq ($(USE_SYCL_NVIDIA),TRUE)
-  LDFLAGS +=$(PE_MPICH_GTL_DIR_nvidia80) $(PE_MPICH_GTL_LIBS_nvidia80)
+#  LIBRARY_LOCATIONS += $(MKL_ROOT)/lib
+#  INCLUDE_LOCATIONS += $(MKL_ROOT)/include
+  LDFLAGS += -L/$(MKL_ROOT)/lib -lonemkl -lonemkl_rng_curand
+  LDFLAGS += $(PE_MPICH_GTL_DIR_nvidia80) $(PE_MPICH_GTL_LIBS_nvidia80)
+else
+  LDFLAGS += -qmkl=sequential
 endif
 
 ifdef SYCL_PARALLEL_LINK_JOBS

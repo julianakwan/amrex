@@ -26,18 +26,19 @@ namespace amrex
 
 #ifdef AMREX_USE_SYCL
 
-    using sycl_rng_engine = mkl::rng::device::philox4x32x10<>;
-    using sycl_rng_descr = mkl::rng::device::engine_descriptor<sycl_rng_engine>;
-    using sycl_rng_acc = mkl::rng::device::engine_accessor<sycl_rng_engine>;
+  using sycl_rng_engine = mkl::rng::device::philox4x32x10<>;
+    // using sycl_rng_descr = mkl::rng::device::engine_descriptor<sycl_rng_engine>;
+    // using sycl_rng_acc = mkl::rng::device::engine_accessor<sycl_rng_engine>;
 
-    extern sycl_rng_descr* rand_engine_descr;
+    // extern sycl_rng_descr* rand_engine_descr;
 
-    AMREX_FORCE_INLINE
-    sycl_rng_descr* getRandEngineDescriptor () { return rand_engine_descr; }
+    // AMREX_FORCE_INLINE
+    // sycl_rng_descr* getRandEngineDescriptor () { return rand_engine_descr; }
 
     struct RandomEngine {
         sycl_rng_engine* engine;
     };
+
 
 #else
 

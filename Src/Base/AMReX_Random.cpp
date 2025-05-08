@@ -18,7 +18,7 @@ namespace
 #ifdef AMREX_USE_GPU
 namespace amrex {
 #ifdef AMREX_USE_SYCL
-    sycl_rng_descr* rand_engine_descr = nullptr;
+  //    sycl_rng_descr* rand_engine_descr = nullptr;
 #else
     amrex::randState_t* gpu_rand_state = nullptr;
 #endif
@@ -47,8 +47,8 @@ void ResizeRandomSeed (amrex::ULong gpu_seed)
 
 #ifdef AMREX_USE_SYCL
 
-    rand_engine_descr = new sycl_rng_descr
-        (Gpu::Device::streamQueue(), sycl::range<1>(N), gpu_seed, 1);
+    // rand_engine_descr = new sycl_rng_descr
+    //     (Gpu::Device::streamQueue(), sycl::range<1>(N), gpu_seed, 1);
 
     gpu_rand_generator = new std::remove_pointer_t<decltype(gpu_rand_generator)>
         (Gpu::Device::streamQueue(), gpu_seed+1234ULL);
@@ -219,11 +219,11 @@ DeallocateRandomSeedDevArray ()
 {
 #ifdef AMREX_USE_GPU
 #ifdef AMREX_USE_SYCL
-    if (rand_engine_descr) {
-        delete rand_engine_descr;
-        Gpu::streamSynchronize();
-        rand_engine_descr = nullptr;
-    }
+    // if (rand_engine_descr) {
+    //     delete rand_engine_descr;
+    //     Gpu::streamSynchronize();
+    //     rand_engine_descr = nullptr;
+    // }
     if (gpu_rand_generator != nullptr) {
         delete gpu_rand_generator;
         Gpu::streamSynchronize();
@@ -267,6 +267,7 @@ void FillRandom (Real* p, Long N)
     AMREX_HIPRAND_SAFE_CALL(hiprandGenerateUniformDouble(gpu_rand_generator, p, N));
 #  endif
     Gpu::synchronize();
+
 
 #elif defined(AMREX_USE_SYCL)
 
@@ -321,7 +322,6 @@ void FillRandomNormal (Real* p, Long N, Real mean, Real stddev)
     event.wait();
 
 #else
-
     std::normal_distribution<Real> distribution(mean, stddev);
     auto& gen = generators[OpenMP::get_thread_num()];
     for (Long i = 0; i < N; ++i) {

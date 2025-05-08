@@ -25,14 +25,17 @@ ifeq ($(which_computer),$(filter $(which_computer),polaris))
 
   ifeq ($(USE_MPI),TRUE)
     ifneq ($(USE_CUDA),TRUE)
-      CC  = clang
-      CXX = clang++
-      FC  = gfortran
-      F90 = gfortran
-      LIBRARIES += -lmpichf90
+      CC  = mpicc
+      CXX = mpicxx
+      FC  = mpif90
+      F90 = mpif90
+      ifneq ($(USE_SYCL_NVIDIA),TRUE)
+        LIBRARIES += -lmpichf90
+      endif
     endif
-
-    includes += $(shell CC --cray-print-opts=cflags)
+    ifneq ($(USE_SYCL_NVIDIA),TRUE)
+      includes += $(shell CC --cray-print-opts=cflags)
+    endif
   endif
 
   ifeq ($(USE_CUDA),TRUE)
